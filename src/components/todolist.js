@@ -11,10 +11,15 @@ const TodoList = () => {
 		setTodoItem(event.target.value)
 	}
 
-	let onTodoSubmit = event => {
+	let addTodoHandler = event => {
 		event.preventDefault()
 		setTodoItem('')
 		setList([...list, todoItem])
+	}
+
+	let deleteTodoHandler = index => {
+		let newList = list.filter((_, todoIndex) => todoIndex !== index)
+		setList(newList)
 	}
 
 	return (
@@ -27,11 +32,11 @@ const TodoList = () => {
 					onChange={onChangeHandler}
 					autocomplete='off'
 				/>
-				<button onClick={onTodoSubmit}>Submit</button>
+				<button onClick={addTodoHandler}>Submit</button>
 			</div>
 			<div>
 				<ul>
-					{list.map((todoitem, index) => <li key={index}>{todoitem}</li>)}
+					{list.map((todoitem, index) => <li key={index} onClick={() => {deleteTodoHandler(index)}}>{todoitem}</li>)}
 				</ul>
 			</div>
 		</>
