@@ -1,7 +1,7 @@
 import React, { useState, useReducer, useContext, createContext } from "react";
 import { v4 as uuidv4 } from "uuid";
 
-const TodoContext = createContext(null);
+const DispatchContext = createContext(null);
 
 const initialTodos = [];
 
@@ -14,7 +14,7 @@ const filterReducer = (state, action) => {
     case "SHOW_INCOMPLETE":
       return "INCOMPLETE";
     default:
-      throw new Error();
+      return state;
   }
 };
 
@@ -43,24 +43,32 @@ const todoReducer = (state, action) => {
         complete: false
       });
     default:
-      throw new Error();
+      return state;
   }
 };
 
 const TodoList_Hook = () => {
   const [todos, dispatchTodos] = useReducer(todoReducer, initialTodos);
-  const [filter, dispatchFilter] = useReducer(filterReducer, "ALL");
+	const [filter, dispatchFilter] = useReducer(filterReducer, "ALL");
+	
+	const dispatch = action =>
+		[dispatchTodos, dispatchFilter].forEach(fn => fn(action));
+		
+	const state = {
+		filter,
+		todos,
+	};
 
   const filteredTodos = todos.filter(todo => {
-    if (filter === "ALL") {
+    if (state.filter === "ALL") {
       return true;
     }
 
-    if (filter === "COMPLETE" && todo.complete) {
+    if (state.filter === "COMPLETE" && todo.complete) {
       return true;
     }
 
-    if (filter === "INCOMPLETE" && !todo.complete) {
+    if (state.filter === "INCOMPLETE" && !todo.complete) {
       return true;
     }
 
@@ -68,16 +76,16 @@ const TodoList_Hook = () => {
   });
 
   return (
-    <TodoContext.Provider value={dispatchTodos}>
+    <DispatchContext.Provider value={dispatch}>
       <Form />
       <TodoList todos={filteredTodos} />
       <Filter dispatch={dispatchFilter} />
-    </TodoContext.Provider>
+    </DispatchContext.Provider>
   );
 };
 
 const Form = () => {
-  const dispatch = useContext(TodoContext);
+  const dispatch = useContext(DispatchContext);
   const [task, setTask] = useState("");
 
   const handleInputChange = event => {
@@ -86,7 +94,11 @@ const Form = () => {
 
   const handleSubmitTask = event => {
     if (task) {
-      dispatch({ type: "ADD_TODO", task });
+      dispatch({ 
+				type: "ADD_TODO",
+				task,
+				id: uuidv4()
+			});
     }
     setTask("");
     event.preventDefault();
@@ -109,7 +121,7 @@ const TodoList = ({ todos }) => (
 );
 
 const TodoItem = ({ todo }) => {
-  const dispatch = useContext(TodoContext);
+  const dispatch = useContext(DispatchContext);
 
   const handleChangeCheckBox = () => {
     dispatch({
@@ -132,7 +144,9 @@ const TodoItem = ({ todo }) => {
   );
 };
 
-const Filter = ({ dispatch }) => {
+const Filter = () => {
+	const dispatch = useContext(DispatchContext);
+
   const handleShowAll = () => {
     dispatch({ type: "SHOW_ALL" });
   };
