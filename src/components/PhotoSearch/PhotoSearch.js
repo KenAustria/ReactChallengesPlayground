@@ -50,7 +50,7 @@ const PhotoSearch = () => {
   );
 };
 
-const PhotoResults = (props) => {
+const PhotoResults = props => {
   const [open, setOpen] = useState(false);
   const [currentResult, setCurrentResult] = useState("");
 
@@ -64,7 +64,7 @@ const PhotoResults = (props) => {
   let resultList;
   if (props.results) {
     resultList = (
-      <GridList col={3}>
+      <GridList cols={3}>
         {props.results.map(img => (
           <GridListTile
             title={img.tags}
