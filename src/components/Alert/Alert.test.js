@@ -1,9 +1,8 @@
 import React from "react";
-import { render, waitForElement } from "@testing-library/react";
+import { render } from "@testing-library/react";
 import Alert from "./Alert";
 
-test("renders an alert", async () => {
+test("renders an alert", () => {
   const { getByTestId } = render(<Alert />);
-  await waitForElement(() => getByTestId("alert"));
   expect(getByTestId("alert")).toBeInTheDocument();
 });
