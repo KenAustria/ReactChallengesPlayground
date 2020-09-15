@@ -1,47 +1,59 @@
 // filename: Alert.js
 // import into App to render
-import React, {useState, useEffect} from 'react';
-import './Alert.css';
+import React, { useState, useEffect } from "react";
+import "./Alert.css";
+import PropTypes from "prop-types";
 
-const Alert = props => {
-	const [isShown, setIsShown] = useState(false);
-	const [isLeaving, setIsLeaving] = useState(false);
+const Alert = ({ isDefaultShown, timeout, type, message }) => {
+  const [isShown, setIsShown] = useState(isDefaultShown);
+  const [isLeaving, setIsLeaving] = useState(false);
 
-	let timeoutId = null;
-	// hook to update the value of isShown to true and clear interval
-	// .. by using timeoutId when component is unmounted
-	useEffect(() => {
+  // instance for clearing on component unmount.
+  let timeoutId = null;
+
+  // hook to update the value of isShown to true and clear interval
+  // .. by using timeoutId when component is unmounted
+  useEffect(() => {
     setIsShown(true);
-		return () => {
-			clearTimeout(timeoutId);
-		}
-  }, [props.isShown, props.timeout, timeoutId]);
+    return () => {
+      clearTimeout(timeoutId);
+    };
+  }, [isDefaultShown, timeout, timeoutId]);
 
-	// to set the component to be removed from DOM
-	const closeAlert = () => {
-		setIsLeaving(true);
-		// to keep the timer instance from clearing on component unmount
-		timeoutId = setTimeout(() => {
-			setIsLeaving(false);
-			setIsShown(false);
-		}, 250)
-	}
+  // to set the component to be removed from DOM
+  const closeAlert = () => {
+    setIsLeaving(true);
+    timeoutId = setTimeout(() => {
+      setIsLeaving(false);
+      setIsShown(false);
+    }, timeout);
+  };
 
-	// renders the alert component with user defined message
-	// .. and a close button to remove the component from DOM.
-	return isShown && (
-		// chaining .alert with either '.warning or .error or .leaving' AND conditional
-		<div className={`alert ${props.type}${isLeaving ? 'leaving' : ''}`}>
-			{props.message}
-			<button className="close" onClick={closeAlert} />
-		</div>
-	)
-}
+	// chaining .alert with either '.warning or .error AND conditional for .leaving
+	// ternaries instead of && `https://kentcdodds.com/blog/use-ternaries-rather-than-and-and-in-jsx`
+  return (
+    <div>
+      {isShown ? (
+        <div
+          className={`alert ${type}${isLeaving ? "leaving" : ""}`}
+          role="alert"
+          data-testid="alert"
+        >
+          <button className="close" onClick={closeAlert} />
+          {message}
+        </div>
+      ) : null}
+    </div>
+  );
+};
+
+Alert.propTypes = {
+  isDefaultShown: PropTypes.bool,
+  timeout: PropTypes.number,
+  type: PropTypes.string,
+  message: PropTypes.string
+};
 
 export default Alert;
 
-/* <Alert type="info" message="Activated Account" />
-<Alert type="info" message="Registered Account" />
-<Alert type="info" message="Updated Account" />
-<Alert type="info" message="Suspended Account" />
-<Alert type="info" message="Deactivate Account" /> */
+{/* <Alert isDefaultShown="true" timeout="250" type="warning" message="Are you sure?" /> */}
