@@ -5,9 +5,9 @@ import App from './App';
 import registerServiceWorker from './registerServiceWorker';
 import {applyPolyfills, defineCustomElements} from 'h8k-components/loader';
 
-ReactDOM.render(<App slides={SLIDES} />, document.getElementById('root'));
+ReactDOM.render(<App />, document.getElementById('root'));
 registerServiceWorker();
 
 applyPolyfills().then(() => {
-    defineCustomElements(window);
+  defineCustomElements(window);
 })
