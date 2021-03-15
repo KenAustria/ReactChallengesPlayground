@@ -1,0 +1,38 @@
+* 6:30 | Define routes
+* 8:00 | File/Folder structure convention explanation
+* 9:15 | Define routes: BookList, CreateBook, UpdateBook
+* 14:00 | Define NavBar
+* 16:35 | Define Container
+* 17:35 | Add icon
+* 18:00 | sanity check
+
+* 18:08 | Define BooksList and constant to destructure from useQuery
+  * 19:15 | Define react-query 'getAllBooks' funtion inside api module
+    - env => api.js => BooksList
+    - (good to separate data fetching logic from components to stay modular)
+  * 19:15 | Define api.js
+  * 20:15 | Store configuration items in .envc
+  * 22: 00 | Define render conditions: isLoading, isError, list of books
+    * 24: 55 | - (debugging tip for data fetching error: Network => Headers Status Code => Response)
+
+* 26:00 | Define BookItem, accepts 'author', 'title', and 'id'
+
+* 29:00 | Define 'removeBook' functionality
+  - useQuery to fetch data
+  - useMutation to update back-end data
+  - 'mutate' or 'mutateAsync' is async, should be followed by 'onSuccess'
+  refresh book cache after succesfully remove the book
+  * 32:00 | Assign 'removeBook' to 'BookItem'
+  * 33:20 | Define 'isLoading' condition
+
+* 34:30 | Define BookForm to create a book and update its attributes
+
+* 40:00 | Define UpdateBook, which updates the values
+  - useHistory: navigate back to list of books after deleting a book
+  * 42:20 | Define 'getBook' function
+  * 44:30 | Define 'isLoading', 'isError', and layout render conditions
+  * 45:50 | Setup BookForm with UpdateBook
+  * 47:50 | Define 'updateBook' function
+
+* 50:24 | Define CreateBook
+  * 51:30 | Define createBook
