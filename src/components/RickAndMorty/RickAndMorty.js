@@ -15,13 +15,8 @@ ReactDOM.render(
   document.getElementById("root")
 );
 
-// If you want to start measuring performance in your app, pass a function
-// to log results (for example: reportWebVitals(console.log))
-// or send to an analytics endpoint. Learn more: https://bit.ly/CRA-vitals
-
-
 import React, { useState, useRef } from "react";
-import RickAndMortyInfo from "./components/RickandMortyInfo";
+import RickAndMortyInfo from "./components/RickAndMortyInfo";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
@@ -29,6 +24,14 @@ import { useQuery } from "react-query";
 import { ReactQueryDevtools } from "react-query/devtools";
 import axios from "axios";
 import { ErrorBoundary } from "react-error-boundary";
+
+function delay() {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve();
+    }, 2000);
+  });
+}
 
 const ErrorFallback = ({ error, resetErrorBoundary }) => {
   return (
@@ -44,78 +47,79 @@ const searchSchema = yup.object().shape({
   rickAndMortyId: yup.number().required().positive().integer()
 });
 
+const getRandomRickAndMortyCharacterId = () => {
+  const NUMBER_OF_RICK_AND_MORTY_CHARACTERS = 672;
+  const min = Math.ceil(1);
+  const max = Math.floor(NUMBER_OF_RICK_AND_MORTY_CHARACTERS);
+  return Math.floor(Math.random() * (max - min + 1)) + min;
+};
+
 const App = () => {
   const [idQuery, setIdQuery] = useState(0);
   const [rickAndMortyCharacter, setRickAndMortyCharacter] = useState({});
   const queryRef = useRef(null);
-  const { register, handleSubmit, watch, errors } = useForm({
+  const { register, handleSubmit, errors, setValue, watch } = useForm({
     resolver: yupResolver(searchSchema)
   });
-
-  const getRandomRickAndMortyCharacterId = () => {
-    const NUMBER_OF_RICK_AND_MORTY_CHARACTERS = 672;
-    const min = Math.ceil(1);
-    const max = Math.floor(NUMBER_OF_RICK_AND_MORTY_CHARACTERS);
-    return Math.floor(Math.random() * (max - min + 1)) + min;
-  };
-
-  const handleRandomFetch = (event) => {
-    event.preventDefault();
-    const id = getRandomRickAndMortyCharacterId();
-    return axios(`https://rickandmortyapi.com/api/character/${id}`).then(
-      (res) => {
-        setRickAndMortyCharacter(res.data);
-      }
-    );
-  };
-
+  const formId = watch("rickAndMortyId");
   const handleRickAndMortyFetch = () => {
-    return axios(`https://rickandmortyapi.com/api/character/${idQuery}`).then(
-      (res) => {
-        setRickAndMortyCharacter(res.data);
-        console.log(getRandomRickAndMortyCharacterId());
-      }
-    );
+    return delay()
+      .then(() => axios(`https://rickandmortyapi.com/api/character/${idQuery}`))
+      .then((res) => setRickAndMortyCharacter(res.data));
   };
 
-  const { loading, error } = useQuery("rickandmorty", handleRickAndMortyFetch, {
-    refetchOnWindowFocus: false,
-    enabled: false,
-    useErrorBoundary: true
-  });
-
-  console.log(watch(rickAndMortyCharacter));
+  const { isLoading, error } = useQuery(
+    ["rickandmorty", idQuery],
+    handleRickAndMortyFetch,
+    {
+      refetchOnWindowFocus: false,
+      enabled: idQuery !== 0,
+      useErrorBoundary: true
+    }
+  );
+  const disable = isLoading || parseFloat(formId) === idQuery;
+  const onSubmit = (formData) => {
+    setIdQuery(formData.rickAndMortyId);
+  };
 
   return (
     <div>
       <ErrorBoundary
         FallbackComponent={ErrorFallback}
         onReset={() => {
-          setIdQuery("");
           queryRef.current.focus();
         }}
         resetKeys={[idQuery]}
       >
         <div>
-          <form onSubmit={handleSubmit(handleRickAndMortyFetch)}>
+          <form onSubmit={handleSubmit(onSubmit)}>
             <label htmlFor="Rick and Morty">Rick and Morty</label>
             <input
               type="number"
               name="rickAndMortyId"
               placeholder="Type ID"
               ref={register}
-              onChange={(event) => setIdQuery(event.target.value)}
+              disabled={isLoading}
             />
             {errors.rickAndMortyId && <span>This field is required</span>}
             {error && <p>Error occurred: {error.message}</p>}
-            <button type="submit">Search Character</button>
+            <button type="submit" disabled={disable}>
+              Search Character
+            </button>
           </form>
-          <form onSubmit={handleRandomFetch}>
-            <button type="submit">Random</button>
-          </form>
+          <button
+            onClick={() => {
+              const randomId = getRandomRickAndMortyCharacterId();
+              setValue("rickAndMortyId", randomId);
+              setIdQuery(randomId);
+            }}
+            disabled={disable}
+          >
+            Random
+          </button>
         </div>
         <div>
-          {loading && <p>Loading...</p>}
+          {isLoading && <p>Loading...</p>}
           <RickAndMortyInfo rickAndMortyCharacter={rickAndMortyCharacter} />
         </div>
         <ReactQueryDevtools initialIsOpen={true} />
@@ -125,7 +129,6 @@ const App = () => {
 };
 
 export default App;
-
 
 import React from "react";
 import PropTypes from "prop-types";
