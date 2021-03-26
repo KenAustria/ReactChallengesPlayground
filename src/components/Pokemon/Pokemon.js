@@ -1,3 +1,16 @@
+// import { QueryClient, QueryClientProvider } from 'react-query'
+
+// const queryClient = new QueryClient()
+
+// ReactDOM.render(
+// 	<QueryClientProvider client={queryClient}>
+// 		<React.StrictMode>
+// 			<App />
+// 		</React.StrictMode>
+// 	</QueryClientProvider>,
+//   document.getElementById('root')
+// );
+
 import React, {useState } from "react";
 import { useForm } from "react-hook-form";
 import { yupResolver } from '@hookform/resolvers/yup';
@@ -62,15 +75,24 @@ const App = () => {
 
 export default App;
 
-// import { QueryClient, QueryClientProvider } from 'react-query'
+import React from "react";
+import PropTypes from "prop-types";
 
-// const queryClient = new QueryClient()
+const PokemonInfo = ({ pokemonCharacter }) => {
+  return (
+    <div>
+      {pokemonCharacter.name ?
+        <div>
+          <p>{pokemonCharacter.name}</p>
+          <img src={pokemonCharacter.sprites.front_default} alt="pokemon" />
+        </div>
+      : <p>No Pokemon yet, please submit a Pokemon!</p>}
+    </div>
+  );
+};
 
-// ReactDOM.render(
-// 	<QueryClientProvider client={queryClient}>
-// 		<React.StrictMode>
-// 			<App />
-// 		</React.StrictMode>
-// 	</QueryClientProvider>,
-//   document.getElementById('root')
-// );
+PokemonInfo.propTypes = {
+  pokemonCharacter: PropTypes.object
+};
+
+export default PokemonInfo;
