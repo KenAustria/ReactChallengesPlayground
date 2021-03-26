@@ -1,20 +1,3 @@
-import React from "react";
-import ReactDOM from "react-dom";
-import "./index.css";
-import App from "./App";
-import { QueryClient, QueryClientProvider } from "react-query";
-
-const queryClient = new QueryClient();
-
-ReactDOM.render(
-  <QueryClientProvider client={queryClient}>
-    <React.StrictMode>
-      <App />
-    </React.StrictMode>
-  </QueryClientProvider>,
-  document.getElementById("root")
-);
-
 import React, { useState, useRef } from "react";
 import RickAndMortyInfo from "./components/RickAndMortyInfo";
 import { useForm } from "react-hook-form";
@@ -29,7 +12,7 @@ function delay() {
   return new Promise((resolve) => {
     setTimeout(() => {
       resolve();
-    }, 2000);
+    }, 500);
   });
 }
 
@@ -62,11 +45,18 @@ const App = () => {
     resolver: yupResolver(searchSchema)
   });
   const formId = watch("rickAndMortyId");
-  const handleRickAndMortyFetch = () => {
+
+	const handleRickAndMortyFetch = () => {
     return delay()
       .then(() => axios(`https://rickandmortyapi.com/api/character/${idQuery}`))
       .then((res) => setRickAndMortyCharacter(res.data));
   };
+
+	const onTextChange = event => {
+		setIdQuery(event.target.value, () => {
+			handleRickAndMortyFetch()
+		})
+	}
 
   const { isLoading, error } = useQuery(
     ["rickandmorty", idQuery],
@@ -93,13 +83,14 @@ const App = () => {
       >
         <div>
           <form onSubmit={handleSubmit(onSubmit)}>
-            <label htmlFor="Rick and Morty">Rick and Morty</label>
+						<h3>Disabling elements while fetching data</h3>
             <input
               type="number"
               name="rickAndMortyId"
-              placeholder="Type ID"
+              placeholder="Between 1 and 671"
               ref={register}
               disabled={isLoading}
+							onChange={onTextChange}
             />
             {errors.rickAndMortyId && <span>This field is required</span>}
             {error && <p>Error occurred: {error.message}</p>}
@@ -113,7 +104,6 @@ const App = () => {
               setValue("rickAndMortyId", randomId);
               setIdQuery(randomId);
             }}
-            disabled={disable}
           >
             Random
           </button>
@@ -136,9 +126,9 @@ import PropTypes from "prop-types";
 const RickandMortyInfo = ({ rickAndMortyCharacter }) => {
   return (
     <div>
-      {rickAndMortyCharacter ? (
+      {rickAndMortyCharacter.name ? (
         <div>
-          <p>{rickAndMortyCharacter.name}</p>
+          <h1>{rickAndMortyCharacter.name}</h1>
           <img src={rickAndMortyCharacter.image} alt="character" />
         </div>
       ) : (
