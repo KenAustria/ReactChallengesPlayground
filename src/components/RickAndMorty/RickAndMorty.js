@@ -3,7 +3,7 @@ import RickAndMortyInfo from "./components/RickAndMortyInfo";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
-import { useQuery } from "react-query";
+import { useQuery, useQueryClient } from "react-query";
 import { ReactQueryDevtools } from "react-query/devtools";
 import axios from "axios";
 import { ErrorBoundary } from "react-error-boundary";
@@ -39,26 +39,33 @@ const getRandomRickAndMortyCharacterId = () => {
 
 const App = () => {
   const [idQuery, setIdQuery] = useState(0);
-  const [rickAndMortyCharacter, setRickAndMortyCharacter] = useState({});
   const queryRef = useRef(null);
+  const queryClient = useQueryClient();
   const { register, handleSubmit, errors, setValue, watch } = useForm({
     resolver: yupResolver(searchSchema)
   });
   const formId = watch("rickAndMortyId");
 
-	const handleRickAndMortyFetch = () => {
+  const handleRickAndMortyFetch = () => {
     return delay()
+			// No catch method because React Query expects unresolved promise
       .then(() => axios(`https://rickandmortyapi.com/api/character/${idQuery}`))
-      .then((res) => setRickAndMortyCharacter(res.data));
+      // hand off response to React Query
+			.then((res) => res.data);
   };
 
-	const onTextChange = event => {
+	const cacheData = queryClient.getQueryData(["rickandmorty", idQuery], {
+		exact: false
+	})
+
+	// makes request upon input change
+	const onInputChange = event => {
 		setIdQuery(event.target.value, () => {
 			handleRickAndMortyFetch()
 		})
 	}
 
-  const { isLoading, error } = useQuery(
+  const { isLoading, error, data } = useQuery(
     ["rickandmorty", idQuery],
     handleRickAndMortyFetch,
     {
@@ -67,9 +74,14 @@ const App = () => {
       useErrorBoundary: true
     }
   );
-  const disable = isLoading || parseFloat(formId) === idQuery;
+
+	// if loading or if the character corresponding to id in input is currently loaded
+  const disable = isLoading || parseFloat(formId) === idQuery || !idQuery;
   const onSubmit = (formData) => {
     setIdQuery(formData.rickAndMortyId);
+  };
+  const onLogCache = () => {
+    console.log(cacheData);
   };
 
   return (
@@ -83,14 +95,14 @@ const App = () => {
       >
         <div>
           <form onSubmit={handleSubmit(onSubmit)}>
-						<h3>Disabling elements while fetching data</h3>
+            <h3>Rick and Morty</h3>
             <input
               type="number"
               name="rickAndMortyId"
               placeholder="Between 1 and 671"
               ref={register}
               disabled={isLoading}
-							onChange={onTextChange}
+							onChange={onInputChange}
             />
             {errors.rickAndMortyId && <span>This field is required</span>}
             {error && <p>Error occurred: {error.message}</p>}
@@ -108,9 +120,10 @@ const App = () => {
             Random
           </button>
         </div>
+        <button onClick={onLogCache}>Log cache from last request</button>
         <div>
           {isLoading && <p>Loading...</p>}
-          <RickAndMortyInfo rickAndMortyCharacter={rickAndMortyCharacter} />
+          <RickAndMortyInfo rickAndMortyCharacter={data} />
         </div>
         <ReactQueryDevtools initialIsOpen={true} />
       </ErrorBoundary>
