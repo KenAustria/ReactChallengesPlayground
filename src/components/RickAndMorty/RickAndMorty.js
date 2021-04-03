@@ -1,8 +1,8 @@
 import React, { useState } from "react";
-import SearchForm from "./components/SearchForm"
+import Home from "./components/Home"
 import { QueryErrorResetBoundary } from "react-query";
-import { ReactQueryDevtools } from "react-query/devtools";
 import { ErrorBoundary } from "react-error-boundary";
+import { ReactQueryDevtools } from "react-query/devtools";
 
 const ErrorFallback = ({ error, resetErrorBoundary }) => {
   return (
@@ -27,19 +27,17 @@ const App = () => {
 
   return (
     <div>
-			<div>
-				<QueryErrorResetBoundary>
-					<ErrorBoundary
-						FallbackComponent={ErrorFallback}
-						onReset={() => {
-							setIdQuery(0)
-						}}
-						resetKeys={[idQuery]}
-					>
-						<SearchForm idQuery={idQuery} setIdQuery={setIdQuery} />
-					</ErrorBoundary>
-				</QueryErrorResetBoundary>
-			</div>
+			<QueryErrorResetBoundary>
+        <ErrorBoundary
+          FallbackComponent={ErrorFallback}
+          onReset={() => {
+            setIdQuery(0)
+          }}
+          resetKeys={[idQuery]}
+        >
+					<Home idQuery={idQuery} setIdQuery={setIdQuery} />
+				</ErrorBoundary>
+      </QueryErrorResetBoundary>
 			<div>
 				{/* {previousCharacters} */}
 			</div>
@@ -50,16 +48,15 @@ const App = () => {
 
 export default App;
 
-import React from "react";
-import RickAndMortyInfo from "../RickAndMortyInfo/";
-import PropTypes from "prop-types";
-import { useForm } from "react-hook-form";
-import { yupResolver } from "@hookform/resolvers/yup";
-import * as yup from "yup";
-import { useQuery, useQueryClient } from "react-query";
-import axios from "axios";
 
-const SearchForm = ({ idQuery, setIdQuery, }) => {
+import React from "react";
+import SearchForm from "../SearchForm"
+import RickAndMortyInfo from "../RickAndMortyInfo/";
+import axios from "axios";
+import { useQuery } from "react-query";
+import PropTypes from "prop-types"
+
+const Home = ({ idQuery, setIdQuery}) => {
   const delay = () => {
     return new Promise((resolve) => {
       setTimeout(() => {
@@ -88,6 +85,37 @@ const SearchForm = ({ idQuery, setIdQuery, }) => {
     }
   );
 
+  const handleFetchOnInputChange = event => {
+		setIdQuery(event.target.value, () => {
+			handleRickAndMortyFetch()
+		})
+	}
+
+
+  return (
+    <div>
+      <SearchForm idQuery={idQuery} setIdQuery={setIdQuery} isLoading={isLoading} error={error} handleFetchOnInputChange={handleFetchOnInputChange} />
+      <RickAndMortyInfo rickAndMortyCharacter={data} />
+    </div>
+  )
+}
+
+Home.propTypes = {
+  idQuery: PropTypes.number,
+  setIdQuery: PropTypes.func
+}
+
+export default Home
+
+import React from "react";
+import PropTypes from "prop-types";
+import { useForm } from "react-hook-form";
+import { yupResolver } from "@hookform/resolvers/yup";
+import * as yup from "yup";
+import { useQueryClient } from "react-query";
+
+const SearchForm = ({ idQuery, setIdQuery, isLoading, error, handleFetchOnInputChange }) => {
+
   const queryClient = useQueryClient();
 
   const searchSchema = yup.object().shape({
@@ -115,11 +143,6 @@ const SearchForm = ({ idQuery, setIdQuery, }) => {
 		console.log(Object.values(cacheData.queriesMap)) // returns [{}, {{{ }}}]
 		// console.log(Object.values(cacheData.queriesMap["[\"rickandmorty\",\"1\"]"].state.data.name).join(""))
 	}
-	const handleFetchOnInputChange = event => {
-		setIdQuery(event.target.value, () => {
-			handleRickAndMortyFetch()
-		})
-	}
 
   const getRandomRickAndMortyCharacterId = () => {
     const NUMBER_OF_RICK_AND_MORTY_CHARACTERS = 672;
@@ -130,7 +153,7 @@ const SearchForm = ({ idQuery, setIdQuery, }) => {
 
   return (
     <div>
-      <div>
+      <div></div>
         <form onSubmit={handleSubmit(handleSubmitForm)}>
           <h3>Rick and Morty</h3>
           <input
@@ -158,10 +181,6 @@ const SearchForm = ({ idQuery, setIdQuery, }) => {
         </button>
         <button onClick={handleLogCache}>Log cache from last request</button>
 				<button onClick={handleCacheClear}>Clear Cache</button>
-      </div>
-      <div>
-        <RickAndMortyInfo rickAndMortyCharacter={data} />
-      </div>
     </div>
   )
 }
@@ -175,6 +194,7 @@ SearchForm.propTypes = {
 }
 
 export default SearchForm
+
 
 import React from "react";
 import PropTypes from "prop-types";
@@ -199,4 +219,3 @@ RickandMortyInfo.propTypes = {
 };
 
 export default RickandMortyInfo;
-
