@@ -17,14 +17,6 @@ const ErrorFallback = ({ error, resetErrorBoundary }) => {
 const App = () => {
   const [idQuery, setIdQuery] = useState(0);
 
-	// VARIABLES
-	// const previousCharacters = Object.values(cacheData.queriesMap).map(character => (
-	// 	// TypeError: Cannot read property name of undefined
-	// 	// ..because state is undefined from initial fetch on mount ["rickandmorty",0]
-	// 	// disable fetch on mount to solve
-	// 	<button>{character.state.data.name}</button>
-	// ))
-
   return (
     <div>
 			<QueryErrorResetBoundary>
@@ -38,9 +30,6 @@ const App = () => {
 					<Home idQuery={idQuery} setIdQuery={setIdQuery} />
 				</ErrorBoundary>
       </QueryErrorResetBoundary>
-			<div>
-				{/* {previousCharacters} */}
-			</div>
 			<ReactQueryDevtools initialIsOpen={true} />
     </div>
   );
@@ -51,12 +40,33 @@ export default App;
 
 import React from "react";
 import SearchForm from "../SearchForm"
-import RickAndMortyInfo from "../RickAndMortyInfo/";
+import RickAndMortyInfo from "../RickAndMortyInfo";
+import Cache from "../Cache"
 import axios from "axios";
-import { useQuery } from "react-query";
+import { useQuery, useQueryClient } from "react-query";
 import PropTypes from "prop-types"
 
 const Home = ({ idQuery, setIdQuery}) => {
+  const queryClient = useQueryClient();
+  const characterData = queryClient.getQueryData(["rickandmorty", idQuery])
+
+	const cacheData = queryClient.getQueryCache(["rickandmorty", idQuery], {
+		exact: false,
+		enabled: false
+	})
+
+  const cachedCharacters = Object.values(
+    cacheData.queriesMap
+  ).map((character, index) => (
+    <>
+      {character.state.data ? (
+        <button key={`${character.state.data.name}${index}`}>
+          {character.state.data.name}
+        </button>
+      ) : null}
+    </>
+  ));
+
   const delay = () => {
     return new Promise((resolve) => {
       setTimeout(() => {
@@ -67,81 +77,77 @@ const Home = ({ idQuery, setIdQuery}) => {
 
 	const handleRickAndMortyFetch = () => {
     return delay()
-			// No 'catch' method because React Query expects unresolved promise
       .then(() => axios(`https://rickandmortyapi.com/api/character/${idQuery}`))
-      // hand off response to React Query
 			.then((res) => res.data);
   };
 
-	const { isLoading, error, data } = useQuery(
+	const { data, error, isLoading } = useQuery(
     ["rickandmorty", idQuery],
     handleRickAndMortyFetch,
     {
-			retry: false,
+			cacheTime: 1000 * 60 * 60 * 24,
+      enabled: false || idQuery !== 0,
+      onError: (error) => console.log(error),
+      retry: false,
       refetchOnWindowFocus: true,
-      enabled: idQuery !== 0, // don't fetch on mount AND enable fetch only when input is not empt
-      useErrorBoundary: true,
-			onError: (error) => console.log(error)
+      staleTime: 1000 * 60 * 60 * 24,
+      useErrorBoundary: true
     }
   );
 
   const handleFetchOnInputChange = event => {
-		setIdQuery(event.target.value, () => {
-			handleRickAndMortyFetch()
-		})
+    setIdQuery(event.target.value, () => {
+      handleRickAndMortyFetch()
+    })
 	}
-
 
   return (
     <div>
-      <SearchForm idQuery={idQuery} setIdQuery={setIdQuery} isLoading={isLoading} error={error} handleFetchOnInputChange={handleFetchOnInputChange} />
+      <SearchForm
+        error={error}
+        cacheData={cacheData}
+        characterData={characterData}
+        handleFetchOnInputChange={handleFetchOnInputChange}
+        idQuery={idQuery}
+        isLoading={isLoading}
+        queryClient={queryClient}
+        setIdQuery={setIdQuery}
+      />
       <RickAndMortyInfo rickAndMortyCharacter={data} />
+      <Cache cachedCharacters={cachedCharacters} />
     </div>
   )
 }
 
 Home.propTypes = {
-  idQuery: PropTypes.number,
   setIdQuery: PropTypes.func
 }
 
 export default Home
+
 
 import React from "react";
 import PropTypes from "prop-types";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
-import { useQueryClient } from "react-query";
 
-const SearchForm = ({ idQuery, setIdQuery, isLoading, error, handleFetchOnInputChange }) => {
+const searchSchema = yup.object().shape({
+  rickAndMortyId: yup.number().required().positive().integer()
+});
 
-  const queryClient = useQueryClient();
-
-  const searchSchema = yup.object().shape({
-    rickAndMortyId: yup.number().required().positive().integer()
-  });
+const SearchForm = ({ cacheData, cachedCharacters, error, handleFetchOnInputChange, idQuery, isLoading, queryClient, refetch, setIdQuery }) => {
   const { register, handleSubmit, errors, setValue, watch } = useForm({
     resolver: yupResolver(searchSchema)
   });
   const formId = watch("rickAndMortyId");
-  const disable = isLoading || parseFloat(formId) === idQuery || !idQuery;
-  /* const cacheData = queryClient.getQueryData(["rickandmorty", idQuery], {
-	   	exact: false,
-	 	  enabled:
-	  })
-  */
-	const cacheData = queryClient.getQueryCache(["rickandmorty", idQuery], {
-		exact: false,
-		enabled: false
-	})
+  const disable = isLoading || parseFloat(formId) === idQuery || !idQuery || cachedCharacters;
 
   const handleSubmitForm = (formData) => setIdQuery(formData.rickAndMortyId);
   const handleCacheClear = () => queryClient.removeQueries("rickandmorty")
   const handleLogCache = () => {
 		console.log(cacheData.queriesMap)
-		console.log(Object.values(cacheData.queriesMap)) // returns [{}, {{{ }}}]
-		// console.log(Object.values(cacheData.queriesMap["[\"rickandmorty\",\"1\"]"].state.data.name).join(""))
+		console.log(Object.values(cacheData.queriesMap))
 	}
 
   const getRandomRickAndMortyCharacterId = () => {
@@ -153,40 +159,38 @@ const SearchForm = ({ idQuery, setIdQuery, isLoading, error, handleFetchOnInputC
 
   return (
     <div>
-      <div></div>
-        <form onSubmit={handleSubmit(handleSubmitForm)}>
-          <h3>Rick and Morty</h3>
-          <input
-            type="number"
-            name="rickAndMortyId"
-            placeholder="Between 1 and 671"
-            ref={register}
-            disabled={isLoading}
-            onChange={handleFetchOnInputChange}
-          />
-          {errors.rickAndMortyId && <span>This field is required</span>}
-          {error && <p>Error occurred: {error.message}</p>}
-          <button type="submit" disabled={disable}>
-            Search Character
-          </button>
-        </form>
-        <button
-          onClick={() => {
-            const randomId = getRandomRickAndMortyCharacterId();
-            setValue("rickAndMortyId", randomId);
-            setIdQuery(randomId);
-          }}
-        >
-          Random
+      <form onSubmit={handleSubmit(handleSubmitForm)}>
+        <h3>Rick and Morty</h3>
+        <input
+          type="number"
+          name="rickAndMortyId"
+          placeholder="Between 1 and 671"
+          ref={register}
+          disabled={isLoading}
+          onChange={handleFetchOnInputChange}
+        />
+        {errors.rickAndMortyId && <span>This field is required</span>}
+        {error && <p>Error occurred: {error.message}</p>}
+        <button type="submit" disabled={disable}>
+          Search Character
         </button>
-        <button onClick={handleLogCache}>Log cache from last request</button>
-				<button onClick={handleCacheClear}>Clear Cache</button>
+      </form>
+      <button
+        onClick={() => {
+          const randomId = getRandomRickAndMortyCharacterId();
+          setValue("rickAndMortyId", randomId);
+          setIdQuery(randomId);
+        }}
+      >
+        Random
+      </button>
+      <button onClick={handleLogCache}>Log cache from last request</button>
+      <button onClick={handleCacheClear}>Clear Cache</button>
     </div>
   )
 }
 
 SearchForm.propTypes = {
-  idQuery: PropTypes.number,
   setIdQuery: PropTypes.func,
   handleRickAndMortyFetch: PropTypes.func,
   isLoading: PropTypes.bool,
@@ -219,3 +223,16 @@ RickandMortyInfo.propTypes = {
 };
 
 export default RickandMortyInfo;
+
+
+import React from 'react'
+
+const Cache = ({ cachedCharacters }) => {
+  return (
+    <div>
+			{cachedCharacters}
+		</div>
+  )
+}
+
+export default Cache
