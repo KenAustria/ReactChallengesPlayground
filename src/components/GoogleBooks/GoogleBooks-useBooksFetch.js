@@ -139,3 +139,92 @@ export const Book = ({ book }) => {
     </li>
   );
 };
+
+import { useBooksFetch } from "./useBooksFetch";
+import { rest } from "msw";
+import { setupServer } from "msw/node";
+
+const server = setupServer(
+  rest.get(
+    "https://www.googleapis.com/books/v1/volumes?q=travel",
+    (req, res, ctx) => {
+      return res(
+        ctx.status(200),
+        ctx.json({
+          data: {
+            items: [
+              {
+                volumeInfo: {
+                  title: "Travels"
+                }
+              },
+              {
+                volumeInfo: {
+                  title: "The Travel Book"
+                }
+              },
+              {
+                volumeInfo: {
+                  title: "Two Arabic Travel Books"
+                }
+              },
+              {
+                volumeInfo: {
+                  title: "Around India in 80 Trains"
+                }
+              },
+              {
+                volumeInfo: {
+                  title: "World Travel"
+                }
+              },
+              {
+                volumeInfo: {
+                  title:
+                    "The ‘Book’ of Travels: Genre, Ethnology, and Pilgrimage, 1250-1700"
+                }
+              },
+              {
+                volumeInfo: {
+                  title: "The Impossible Collection of Chinese Art"
+                }
+              },
+              {
+                volumeInfo: {
+                  title: "Travel Home"
+                }
+              },
+              {
+                volumeInfo: {
+                  title: "Maximum City"
+                }
+              },
+              {
+                volumeInfo: {
+                  title: "The Art of Travel"
+                }
+              }
+            ]
+          }
+        })
+      );
+    }
+  )
+);
+
+beforeAll(() => server.listen());
+afterAll(() => server.close());
+afterEach(() => server.resetHandlers());
+
+it("fetches successfully", async () => {
+  const result = await useBooksFetch();
+  expect(result.data).toHaveLength(10);
+});
+
+// it("handles errors", async () => {
+//   server.use(
+//     rest.get("https://www.googleapis.com/books/v1/volumes", (req, res, ctx) => {
+//       return res(ctx.status(404));
+//     })
+//   );
+// });
