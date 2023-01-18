@@ -1,0 +1,17 @@
+JS
+1. Design API by defining `sections` array of objects with keys: value, title, contents.
+2. Pass `sections` prop to `Accordion`.
+3. Define `openSections` state as a Set to keep track of the sections that are expanded.
+4. Map through `sections` object returning a div with button and inner div.
+5. Assign `value` as key to outer div.
+6. Render `title` as button text.
+5. Render `contents` in inner div.
+6. Define `isExpanded` boolean within map fn to check if section's value is within the set.
+7. Define `handleTitleClick` to check if the section's value is within the set.
+    7.1 Initialie new Set of `openSections` as `newOpenSections`
+    7.2 The value will be removed from the new set if it's inside, otherwise added into the set
+    7.3 Set `openSections` as `newOpenSections`
+8. Assign inner div a `hidden` attribute with `isExpanded` value.
+
+CSS
+
