@@ -1,0 +1,7 @@
+1. App will pass `value` prop to ProgressBar
+2. Define global variables
+3. Define `clampedValue` in ProgressBar to always fill the progress bar between 0-100
+4. Define className `progress`
+5. Define className `progress-bar`
+6. Render `clampedValue` in `progress-bar` div
+7. Define `width` for `style` attribute in `progress-bar` div
