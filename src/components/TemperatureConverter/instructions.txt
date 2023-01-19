@@ -1,0 +1,23 @@
+1. Define HTML: 
+    label > input and div. 
+    div > div
+    label > input and div
+    1.1 One label's div to render `Celsius` and the other label's div to render `Fahrenheit`
+2. Define React state: `celsius` and `fahrenheit`, then assign to input value.
+3. Define `format` function to format a number to be rounded to 4 decimal places.
+    3.1 Ternary condition: if number has more than 4 decimal places, round to 4 decimal places and return, otherwise just return number. 
+4. Define `convert` function
+    4.1 takes 3 arguments: value, setDestinatin, calculateValue
+    4.2 converts a value into a number.
+    4.3 determine if the value is a number.
+    4.4 value of `setDestination` is dependant of ternary logic
+      4.4.1 if valid, calculate the `numericValue` then format it, otherwise return an empty string
+5. Define `handleCelsiusToFahrenheit` event handler, then assign to celsius input.
+    5.1 save the input event's value into `newValue`
+    5.2 set as `celsius` state's value
+    5.3 call `convert` function
+6. Define `handleFahrenheit` event handler, then assign to fahrenheit input.
+    6.1 save the input event's value into `newValue`
+    6.2 set as `celsius` state's value
+    6.3 call `convert` function
+7. Styles
