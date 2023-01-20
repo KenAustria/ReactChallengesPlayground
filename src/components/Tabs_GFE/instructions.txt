@@ -1,0 +1,24 @@
+1. Define API: items array of objects with keys: value, label, content
+2. Pass API through `items` prop to `Tabs` component.
+3. Define HTML for `Tabs` component.
+     3.1 div > div > button
+             > div > p
+4. Define `value` state for `Tabs` component.
+     4.1 if `defaultValue` is not provided, use first item as value
+5. Render `Tabs` button
+     5.1 Iterate `items` props to render tab buttons.
+     5.2 Destructure `label` and `value` as arguments from `items` prop
+           5.2.1 Set `itemValue` as `value` in props
+     5.3 Each button from list should be unique
+     5.4 Render button with `label`
+     5.5 Define onClick event
+6. Render `Tabs` content
+     6.1 Iterate `items` props to render tab content.
+     6.2 Destructure `value` and `content`
+           6.2.1 Set `itemValue` as `value` in props
+     6.3 Each div from list should be unique
+     6.4 The `content` whose `value` is not equal to `itemValue` should be hidden.
+7. Define `isActiveView` when rendering tab buttons.
+8. Styles
+
+
