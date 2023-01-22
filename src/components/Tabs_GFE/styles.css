@@ -5,6 +5,7 @@ body {
 .wrapper {
   display: flex;
   align-items: center;
+  gap: 16px;
 }
 
 .tabs {
@@ -19,6 +20,7 @@ body {
 }
 
 .tabs-list-item {
+  /* custom property */
   --active-color: blueviolet;
 
   background: none;

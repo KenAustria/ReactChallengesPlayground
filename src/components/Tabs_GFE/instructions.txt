@@ -1,3 +1,4 @@
+TABS | INSTRUCTIONS
 1. Define API: items array of objects with keys: value, label, content
 2. Pass API through `items` prop to `Tabs` component.
 3. Define HTML for `Tabs` component.
@@ -21,14 +22,34 @@
 7. Define `isActiveView` when rendering tab buttons.
 8. Styles
 
-ORDER OF ACTIONS
-
-
-LESSONS
+TABS: ORDER OF ACTIONS
+TABS: LESSONS
 https://stackoverflow.com/questions/42522515/what-are-react-controlled-components-and-uncontrolled-components
 https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Nullish_coalescing
 https://michaeluloth.com/filter-boolean
+
+-- -- -- -- -- -- -- -- -- -- --
+TABS: ARIA ROLES, STATES, PROPERTIES | INSTRUCTIONS
+TABS: ARIA ROLES, STATES, PROPERTIES | ORDER OF ACTIONS
+TABS: ARIA ROLES, STATES, PROPERTIES | LESSONS
 https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Attributes/aria-selected
 https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Attributes/aria-controls
 https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Attributes/aria-labelledby
+
+-- -- -- -- -- -- -- -- -- -- --
+TABS: KEYBOARD EVENTS | INSTRUCTIONS
+1. Declare `itemValue` to be equal to `value` when mapping `items`
+     1.1 Update `value` as `itemValue`
+2. Add the `onKeyDown` prop to <div role="tablist">.
+3. Define `setValueViaIndex` function
+     3.1 Set new state for `tabValue` as the current `items` value
+     3.2 Bring new tab to come into focus by using its id
+4. Use switch case to read the `event.code` property and respond accordingly depending on its value.
+     4.1 For each reducer case, define `index` as the index where `itemValue` matches `tabValue`.
+     4.2 Call `setValueViaIndex` and pass `index` argument
+           4.2.1 Use modulo to wrap around to the end if necessary.
+ 
+
+TABS: KEYBOARD EVENTS | ORDER OF ACTIONS
+TABS: KEYBOARD EVENTS | LESSONS
 

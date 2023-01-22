@@ -24,8 +24,10 @@ const API = [
 
 export default function App() {
   return (
-    <div>
+    <div className="wrapper">
+      <button>A focusable element</button>
       <Tabs items={API} />
+      <button>Some other focusable element</button>
     </div>
   );
 }
