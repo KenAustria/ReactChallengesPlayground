@@ -1,4 +1,4 @@
-JS
+ACCORDION I | INSTRUCTIONS
 1. Design API by defining `sections` array of objects with keys: value, title, contents.
 2. Pass `sections` prop to `Accordion`.
 3. Define `openSections` state as a Set to keep track of the sections that are expanded.
@@ -13,5 +13,39 @@ JS
     7.3 Set `openSections` as `newOpenSections`
 8. Assign inner div a `hidden` attribute with `isExpanded` value.
 
-CSS
+ACCORDION I | ORDER OF ACTIONS
+`openSections` is a new set.
+`newOpenSections` will create a clone or `openSections` current state.
+if `newOpenSections` has the value of the clicked button, delete from the set, otherwise add to the set.
+set `openSections` state as `newOopenSections`
+`openSections.has(value)` will return a boolean that will be stored in `isExpanded` variable
+hide the content whose divs have a `falsy` value returned from `isExpanded`.
 
+ACCORDION I | LESSON
+-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- 
+ACCORDION II | INSTRUCTIONS
+1. Generate a unique id string to use as the value of the id attribute of the header element.
+     1.1 Use `useId` hook to generate unique id.
+     1.2 Define `getAccordionHeaderId` to generate a unique id string.
+     1.3 Inside mapping logic of generating header buttons, define `headerId` as the generated unique id string from calling `getAccordionHeaderId`.
+     1.4 Use `headerId` as id of header button.
+     1.5 Use `headerId` as the value of the `aria-labelledby` attribute of the corresponding accordion panel.
+2. Generate a unique id string to use as the value of the id attribute of accordion panel.
+     2.1 Use `useId` hook to generate unique id.
+     2.2 Define `getPanelId` to generate a unique id string.
+     2.3 Inside mapping logic of generating header buttons, define `panelId` as the generated unique id string from calling `getPanelId`.
+     2.4 Use `panelId` as id of panel.
+     2.5 Use `panelId` as the value of the `aria-labelledby` attribute of the corresponding accordion header.
+3.  Assign `aria-controls` on header to control panel.
+4.  Assign `aria-expanded` to indicate if a control is expanded or collapsed.
+5.  Use `aria-hidden` attribute to hide non-interactive content.
+6.  Assign `aria-labelledby` on panel to identify the element that labels the element it is applied to.
+7.  Assign `role` attribute for panel.
+  
+
+ACCORDION II | ORDER OF ACTIONS
+ACCORDION II | LESSON
+https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Attributes/aria-controls
+https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Attributes/aria-expanded
+https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Attributes/aria-hidden
+https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Roles
