@@ -1,0 +1,32 @@
+Data Fetch Logic:
+    Defines an initial state object with data, isLoading, and
+  error properties.
+    Defines an async thunk function fetchPosts that fetches
+  data from an API using Axiosthen sliced to include only the
+  first three elements.
+    Creating a slice using createSlice with a configuration
+  object that includes the slice name, initial state, and
+  empty reducers object, and defining extraReducers to handle
+  the pending, fulfilled, and rejected actions that occur when
+  the fetchPosts function is called.
+
+Logic: Accordion
+  The child div, which is the panel, is hidden only when the
+expanded variable does not match the index of the current
+post. When the user clicks on the button, it calls the 
+handleToggle function, which updates the expanded state to
+match the index of the clicked item. This causes the 
+corresponding child div to become visible, while all other
+child divs become hidden.
+
+Logic: Keyboard Event Custom Hook
+    Defines a custom React hook called useKeyboardEvents that
+  takes an object of posts as input. It returns an object
+  containing two properties: activeIndex and handleKeyDown.
+  The activeIndex property is initialized to null using the
+  useState hook and represents the index of the currently
+  active post. The handleKeyDown function is called when a key
+  is pressed on the keyboard and updates activeIndex based on
+  the key that was pressed. The arrow keys update the index to
+  the next or previous post, while the tab key cycles through
+  the posts in order.
